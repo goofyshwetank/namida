@@ -33,6 +33,8 @@ class _ExtraSettings with SettingsFileWriter {
 
   Rect? windowBounds;
 
+  String geminiApiKey = '';
+
   void save({
     LibraryTab? selectedLibraryTab,
     LibraryTab? staticLibraryTab,
@@ -53,6 +55,7 @@ class _ExtraSettings with SettingsFileWriter {
     int? ytPlaylistsPageIndex,
     int? ytChannelsPageIndex,
     Rect? windowBounds,
+    String? geminiApiKey,
   }) {
     if (selectedLibraryTab != null) this.selectedLibraryTab.value = selectedLibraryTab;
     if (staticLibraryTab != null) this.staticLibraryTab.value = staticLibraryTab;
@@ -73,6 +76,7 @@ class _ExtraSettings with SettingsFileWriter {
     if (ytPlaylistsPageIndex != null) this.ytPlaylistsPageIndex = ytPlaylistsPageIndex;
     if (ytChannelsPageIndex != null) this.ytChannelsPageIndex = ytChannelsPageIndex;
     if (windowBounds != null) this.windowBounds = windowBounds;
+    if (geminiApiKey != null) this.geminiApiKey = geminiApiKey;
     _writeToStorage();
   }
 
@@ -109,6 +113,7 @@ class _ExtraSettings with SettingsFileWriter {
       ytAddToPlaylistsTabIndex = json['ytAddToPlaylistsTabIndex'] ?? ytAddToPlaylistsTabIndex;
       ytPlaylistsPageIndex = json['ytPlaylistsPageIndex'] ?? ytPlaylistsPageIndex;
       ytChannelsPageIndex = json['ytChannelsPageIndex'] ?? ytChannelsPageIndex;
+      geminiApiKey = json['geminiApiKey'] ?? geminiApiKey;
 
       final windowBoundsJson = json['windowBounds'];
       if (windowBoundsJson is Map) {
@@ -145,6 +150,7 @@ class _ExtraSettings with SettingsFileWriter {
     'ytAddToPlaylistsTabIndex': ytAddToPlaylistsTabIndex,
     'ytPlaylistsPageIndex': ytPlaylistsPageIndex,
     'ytChannelsPageIndex': ytChannelsPageIndex,
+    'geminiApiKey': geminiApiKey,
     if (windowBounds != null)
       'windowBounds': {
         'l': windowBounds!.left,
