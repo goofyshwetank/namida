@@ -31,6 +31,7 @@ import 'package:namida/class/shortcut_data.dart';
 import 'package:namida/class/track.dart';
 import 'package:namida/class/version_wrapper.dart';
 import 'package:namida/controller/connectivity.dart';
+import 'package:namida/controller/ai_playlist_controller.dart';
 import 'package:namida/controller/current_color.dart';
 import 'package:namida/controller/miniplayer_controller.dart';
 import 'package:namida/controller/navigator_controller.dart';
@@ -1580,13 +1581,45 @@ class CreatePlaylistButton extends StatelessWidget {
 
   Future<void> promptCreate() async {
     final controller = TextEditingController();
+    final moodController = TextEditingController();
+    final apiKeyController = TextEditingController(text: settings.extra.geminiApiKey);
     final exportAsM3uRx = false.obs;
+    final generatingAIRx = false.obs;
     final formKey = GlobalKey<FormState>();
+
+    Future<void> createFromAI() async {
+      final moodPrompt = moodController.text.trim();
+      final apiKey = apiKeyController.text.trim();
+      if (moodPrompt.isEmpty || apiKey.isEmpty) {
+        snackyy(message: 'Enter mood and Gemini API key first.');
+        return;
+      }
+
+      generatingAIRx.value = true;
+      try {
+        settings.extra.save(geminiApiKey: apiKey);
+        final result = await AIPlaylistController.inst.generatePlaylistForMood(
+          apiKey: apiKey,
+          moodPrompt: moodPrompt,
+        );
+        final finalName = controller.text.trim().isNotEmpty ? controller.text.trim() : result.playlistName;
+        await PlaylistController.inst.addNewPlaylist(finalName, tracks: result.tracks);
+        NamidaNavigator.inst.closeDialog();
+        snackyy(message: 'Created ${result.tracks.length.displayTrackKeyword}');
+      } catch (e) {
+        snackyy(message: 'AI playlist failed: $e');
+      } finally {
+        generatingAIRx.value = false;
+      }
+    }
 
     await NamidaNavigator.inst.navigateDialog(
       onDisposing: () {
         controller.dispose();
+        moodController.dispose();
+        apiKeyController.dispose();
         exportAsM3uRx.close();
+        generatingAIRx.close();
       },
       dialog: Form(
         key: formKey,
@@ -1594,6 +1627,15 @@ class CreatePlaylistButton extends StatelessWidget {
           title: lang.createNewPlaylist,
           actions: [
             const CancelButton(),
+            ObxO(
+              rx: generatingAIRx,
+              builder: (context, generatingAI) => NamidaButton(
+                text: generatingAI ? lang.loading : 'AI Mood',
+                icon: Broken.magic_star,
+                enabled: !generatingAI,
+                onTap: createFromAI,
+              ),
+            ),
             NamidaButton(
               text: lang.save,
               onTap: () async {
@@ -1636,6 +1678,19 @@ class CreatePlaylistButton extends StatelessWidget {
                 hintText: lang.name,
                 labelText: '',
                 validator: (value) => PlaylistController.inst.validatePlaylistName(value),
+              ),
+              const SizedBox(height: 8.0),
+              CustomTagTextField(
+                controller: moodController,
+                hintText: 'chill evening, relaxed focus, happy roadtrip',
+                labelText: 'Mood prompt (for AI)',
+              ),
+              const SizedBox(height: 8.0),
+              CustomTagTextField(
+                controller: apiKeyController,
+                hintText: 'AIza...',
+                labelText: 'Gemini API key',
+                obscureText: true,
               ),
             ],
           ),
