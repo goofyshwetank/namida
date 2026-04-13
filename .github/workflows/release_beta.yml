@@ -133,9 +133,12 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache/azcopy
 
       - name: setup credentials
+        env:
+          GH_NAMIDACO_TOKEN: ${{ secrets.PAT_ORG || secrets.PAT || github.token }}
+          GH_MSOB_TOKEN: ${{ secrets.PAT || github.token }}
         run: |
-          git config --global url.https://${{ secrets.PAT_ORG }}@github.com/namidaco/.insteadOf https://github.com/namidaco/
-          git config --global url.https://${{ secrets.PAT }}@github.com/MSOB7YY/.insteadOf https://github.com/MSOB7YY/
+          git config --global url.https://${GH_NAMIDACO_TOKEN}@github.com/namidaco/.insteadOf https://github.com/namidaco/
+          git config --global url.https://${GH_MSOB_TOKEN}@github.com/MSOB7YY/.insteadOf https://github.com/MSOB7YY/
 
       - name: Setup dependencies
         run: |
@@ -191,9 +194,12 @@ jobs:
           flutter-version-file: pubspec.yaml
 
       - name: Setup credentials
+        env:
+          GH_NAMIDACO_TOKEN: ${{ secrets.PAT_ORG || secrets.PAT || github.token }}
+          GH_MSOB_TOKEN: ${{ secrets.PAT || github.token }}
         run: |
-          git config --global url.https://${{ secrets.PAT_ORG }}@github.com/namidaco/.insteadOf https://github.com/namidaco/
-          git config --global url.https://${{ secrets.PAT }}@github.com/MSOB7YY/.insteadOf https://github.com/MSOB7YY/
+          git config --global url.https://${GH_NAMIDACO_TOKEN}@github.com/namidaco/.insteadOf https://github.com/namidaco/
+          git config --global url.https://${GH_MSOB_TOKEN}@github.com/MSOB7YY/.insteadOf https://github.com/MSOB7YY/
 
       - name: Setup dependencies
         run: |
@@ -281,9 +287,12 @@ jobs:
         run: git config --global --add safe.directory /__w/namida/namida
 
       - name: Setup Git credentials
+        env:
+          GH_NAMIDACO_TOKEN: ${{ secrets.PAT_ORG || secrets.PAT || github.token }}
+          GH_MSOB_TOKEN: ${{ secrets.PAT || github.token }}
         run: |
-          git config --global url.https://${{ secrets.PAT_ORG }}@github.com/namidaco/.insteadOf https://github.com/namidaco/
-          git config --global url.https://${{ secrets.PAT }}@github.com/MSOB7YY/.insteadOf https://github.com/MSOB7YY/
+          git config --global url.https://${GH_NAMIDACO_TOKEN}@github.com/namidaco/.insteadOf https://github.com/namidaco/
+          git config --global url.https://${GH_MSOB_TOKEN}@github.com/MSOB7YY/.insteadOf https://github.com/MSOB7YY/
           # needed for AUR cloning
           git config --global user.name "MSOB7YY"
           git config --global user.email "${{ secrets.EMAIL }}"
